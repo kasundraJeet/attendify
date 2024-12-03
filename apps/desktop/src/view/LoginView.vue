@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 </script>
 
 <template>
-    home
+    login
     <Button variant="link">
-        <RouterLink to="/login">Login</RouterLink>
+        <RouterLink to="/">Home</RouterLink>
     </Button>
 </template>
