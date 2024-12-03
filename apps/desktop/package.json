@@ -14,6 +14,7 @@
     "@repo/ui": "*",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-shell": "^2",
+    "@vueuse/core": "^12.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-vue-next": "^0.462.0",
@@ -24,6 +25,8 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@iconify-json/radix-icons": "^1.2.1",
+    "@iconify/vue": "^4.1.2",
     "@tauri-apps/cli": "^2",
     "@types/node": "^22.10.1",
     "@vitejs/plugin-vue": "^5.0.5",
