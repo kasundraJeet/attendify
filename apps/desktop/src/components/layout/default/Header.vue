@@ -18,7 +18,7 @@ const navLinks = ref([
         id: 2,
         icon: 'mynaui:users-group',
         link_name: 'Employees',
-        link_path: '/',
+        link_path: '/login',
         link_avtive: ['/']
     }
 ])
@@ -53,9 +53,11 @@ const navLinks = ref([
         </div>
         <ul class="flex items-center gap-3">
             <li v-for="item in navLinks" :key="item.id">
-                <Button variant="outline">
-                    <Icon :icon="item.icon" class="!w-5 !h-5" />
-                    {{ item.link_name }}
+                <Button variant="outline" as-child>
+                    <RouterLink :to="item.link_path" class="flex gap-2.5">
+                        <Icon :icon="item.icon" class="!w-5 !h-5" />
+                        {{ item.link_name }}
+                    </RouterLink>
                 </Button>
             </li>
         </ul>
