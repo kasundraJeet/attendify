@@ -3,7 +3,25 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useColorMode } from '@vueuse/core'
 import { Icon } from '@iconify/vue'
+import { ref } from 'vue';
 const mode = useColorMode()
+
+const navLinks = ref([
+    {
+        id: 1,
+        icon: 'fluent:home-24-regular',
+        link_name: 'Dashboard',
+        link_path: '/',
+        link_avtive: ['/']
+    },
+    {
+        id: 2,
+        icon: 'mynaui:users-group',
+        link_name: 'Employees',
+        link_path: '/',
+        link_avtive: ['/']
+    }
+])
 </script>
 
 <template>
@@ -11,12 +29,9 @@ const mode = useColorMode()
         <div class="flex items-center justify-between w-full">
             <div class="flex items-center gap-2.5 divide-x divide-border">
                 <svg width="32" height="32" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                        <path  class="fill-foreground"
-                            d="M256 16v72H88l48 48L16 256h72v168l48-48 120 120v-72h168l-48-48 120-120h-72V88l-48 48L256 16zm0 120c66.274 0 120 53.726 120 120s-53.726 120-120 120-120-53.726-120-120 53.726-120 120-120zm1.406 72.03A48 48 0 0 0 208 256a48 48 0 0 0 96 0 48 48 0 0 0-46.594-47.97z" />
-                    </svg>
-                <div class="pl-2.5">
-                    12212
-                </div>
+                    <path class="fill-foreground"
+                        d="M256 16v72H88l48 48L16 256h72v168l48-48 120 120v-72h168l-48-48 120-120h-72V88l-48 48L256 16zm0 120c66.274 0 120 53.726 120 120s-53.726 120-120 120-120-53.726-120-120 53.726-120 120-120zm1.406 72.03A48 48 0 0 0 208 256a48 48 0 0 0 96 0 48 48 0 0 0-46.594-47.97z" />
+                </svg>
             </div>
             <div class="flex items-center gap-3 divide-x divide-border">
                 <div class="flex items-center gap-2.5">
@@ -36,6 +51,13 @@ const mode = useColorMode()
                 </div>
             </div>
         </div>
-        <div></div>
+        <ul class="flex items-center gap-3">
+            <li v-for="item in navLinks" :key="item.id">
+                <Button variant="outline">
+                    <Icon :icon="item.icon" class="!w-5 !h-5" />
+                    {{ item.link_name }}
+                </Button>
+            </li>
+        </ul>
     </header>
 </template>
