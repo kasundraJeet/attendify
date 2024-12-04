@@ -15,9 +15,13 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { Icon } from '@iconify/vue';
-import { toast } from 'vue-sonner'
+import { toast } from 'vue-sonner';
+import { ApiWrapper } from '@/utils/apiWrapper';
+import { useRouter } from 'vue-router';
+
 
 const isLoading = ref(false)
+const router = useRouter()
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -28,8 +32,27 @@ const { isFieldDirty, handleSubmit } = useForm({
 })
 
 const onSubmit = handleSubmit(async (values) => {
-    console.log(values)
-    toast.success('yayay')
+    isLoading.value = true
+    const form_data = new FormData();
+    form_data.append("email", values.email);
+    form_data.append("password", values.password);
+
+    try {
+        const response = await ApiWrapper("auth/sign-in", form_data);
+
+        if (response.success == 1) {
+            router.push({ name: "home" })
+            isLoading.value = false
+            toast.success(response.message)
+        }
+        else {
+            isLoading.value = false
+        }
+
+    } catch (e) {
+        isLoading.value = false
+        console.error(e);
+    }
 })
 </script>
 
@@ -109,7 +132,7 @@ const onSubmit = handleSubmit(async (values) => {
                             </Button>
                         </div>
                         <Button variant="outline" type="button" class="w-full" :disabled="isLoading" as-child>
-                            <RouterLink to="/sign-up" class="flex items-center">
+                            <RouterLink to="/create-account" class="flex items-center">
                                 <Icon icon="ri:loader-4-line" v-if="isLoading" class="!h-5 !w-5 animate-spin mr-2" />
                                 <Icon icon="line-md:plus" v-else class="!h-5 !w-5 mr-2" />
                                 Create Account
