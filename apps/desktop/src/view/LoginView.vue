@@ -15,6 +15,7 @@ import { useForm } from 'vee-validate';
 import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { Icon } from '@iconify/vue';
+import { toast } from 'vue-sonner'
 
 const isLoading = ref(false)
 const formSchema = toTypedSchema(z.object({
@@ -22,18 +23,19 @@ const formSchema = toTypedSchema(z.object({
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 }));
 
-const form = useForm({
+const { isFieldDirty, handleSubmit } = useForm({
     validationSchema: formSchema,
 })
 
-const onSubmit = form.handleSubmit(async (values) => {
+const onSubmit = handleSubmit(async (values) => {
     console.log(values)
+    toast.success('yayay')
 })
 </script>
 
 <template>
     <LayoutWrapper>
-        <div class="py-12">
+        <div class="py-44">
             <div class="mx-auto flex w-full flex-col justify-center px-2 space-y-6 sm:max-w-md">
                 <div class="flex flex-col space-y-2 text-center">
                     <h1 class="text-2xl font-semibold tracking-tight">
@@ -47,7 +49,8 @@ const onSubmit = form.handleSubmit(async (values) => {
                     <form @submit.prevent="onSubmit">
                         <div class="grid gap-4">
                             <div class="w-full space-y-2">
-                                <FormField v-slot="{ componentField }" name="email" class="grid gap-1">
+                                <FormField v-slot="{ componentField }" name="email" class="grid gap-1"
+                                    :validate-on-blur="!isFieldDirty">
                                     <FormItem>
                                         <FormLabel class="sr-only" for="email"> Email</FormLabel>
                                         <FormControl>
@@ -63,7 +66,8 @@ const onSubmit = form.handleSubmit(async (values) => {
                                         <FormMessage />
                                     </FormItem>
                                 </FormField>
-                                <FormField v-slot="{ componentField }" name="password" class="grid gap-1">
+                                <FormField v-slot="{ componentField }" name="password" class="grid gap-1"
+                                    :validate-on-blur="!isFieldDirty">
                                     <FormItem>
                                         <FormLabel class="sr-only" for="password"> Password</FormLabel>
                                         <FormControl>
@@ -92,15 +96,22 @@ const onSubmit = form.handleSubmit(async (values) => {
                     </form>
                     <Separator label="Or continue with" />
                     <div class="space-y-2">
-                        <Button variant="outline" type="button" class="w-full" :disabled="isLoading">
-                            <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
-                            <Icon icon="mdi:github" v-else class="!h-5 !w-5" />
-                            GitHub
-                        </Button>
-                        <Button variant="outline" type="button" class="w-full" :disabled="isLoading" as-child>
-                            <RouterLink to="/auth/sign-up" class="flex items-center">
+                        <div class="grid grid-cols-2 gap-2">
+                            <Button variant="outline" type="button" class="w-full" :disabled="isLoading">
                                 <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
-                                <Icon icon="line-md:plus" v-else class="h-4 w-4" />
+                                <Icon icon="mdi:google" v-else class="!h-5 !w-5" />
+                                Goggle
+                            </Button>
+                            <Button variant="outline" type="button" class="w-full" :disabled="isLoading">
+                                <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
+                                <Icon icon="mdi:apple" v-else class="!h-5 !w-5" />
+                                Apple ID
+                            </Button>
+                        </div>
+                        <Button variant="outline" type="button" class="w-full" :disabled="isLoading" as-child>
+                            <RouterLink to="/sign-up" class="flex items-center">
+                                <Icon icon="ri:loader-4-line" v-if="isLoading" class="!h-5 !w-5 animate-spin mr-2" />
+                                <Icon icon="line-md:plus" v-else class="!h-5 !w-5 mr-2" />
                                 Create Account
                             </RouterLink>
                         </Button>
