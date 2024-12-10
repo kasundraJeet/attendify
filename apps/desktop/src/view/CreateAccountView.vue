@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import LayoutWrapper from '@/components/layout/auth/LayoutWrapper.vue';
 import { Separator } from '@/components/ui/separator'
 import {
@@ -16,7 +16,9 @@ import { toTypedSchema } from '@vee-validate/zod';
 import * as z from 'zod';
 import { Icon } from '@iconify/vue';
 import { toast } from 'vue-sonner';
+import axios from 'axios';
 import { ApiWrapper } from '@/utils/apiWrapper';
+
 import {
     Select,
     SelectContent,
@@ -30,19 +32,33 @@ import { useRouter } from 'vue-router';
 
 const isLoading = ref(false)
 const router = useRouter()
+const countrieList = ref([])
 
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
     fname: z.string().min(1, { message: "First name is required" }),
-    lname: z.string().min(1, { message: "Last name is required" }),
-    teamSize: z.string().min(1, { message: "Team size must be at least 1" }),
+    lname: z.string().min(1, { message: "Last name is required" })
 }));
 
 
 const { isFieldDirty, handleSubmit } = useForm({
     validationSchema: formSchema,
 })
+
+onMounted(() => {
+    fetchCountries()
+})
+
+const fetchCountries = async () => {
+    try {
+        const response = await axios.get("https://restcountries.com/v3.1/all?fields=name,flag");
+        countrieList.value = response.data
+    } catch (error) {
+        console.error("Error fetching country data:", error);
+    }
+}
+
 
 const onSubmit = handleSubmit(async (values) => {
     isLoading.value = true
@@ -142,6 +158,27 @@ const onSubmit = handleSubmit(async (values) => {
                                                     <SelectItem value="10_20">10 - 20 Members</SelectItem>
                                                     <SelectItem value="20_50">20 - 50 Members</SelectItem>
                                                     <SelectItem value="50+">50+ Members</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                </FormField>
+                                <FormField v-slot="{ componentField }" name="country">
+                                    <FormItem>
+                                        <FormLabel>Country</FormLabel>
+                                        <Select v-bind="componentField">
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select a Country" />
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent class="max-w-64">
+                                                <SelectGroup>
+                                                    <SelectItem class="line-clamp-1 text-nowrap"
+                                                        :value="item.name.common" v-for="item in countrieList"
+                                                        :key="item.flag">{{ item.flag }} {{ item.name.common }}
+                                                    </SelectItem>
                                                 </SelectGroup>
                                             </SelectContent>
                                         </Select>

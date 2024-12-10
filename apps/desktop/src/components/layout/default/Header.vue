@@ -20,6 +20,13 @@ const navLinks = ref([
         link_name: 'Employees',
         link_path: '/login',
         link_avtive: ['/']
+    },
+    {
+        id: 3,
+        icon: 'ant-design:setting-outlined',
+        link_name: 'Settings',
+        link_path: '/',
+        link_avtive: ['/']
     }
 ])
 </script>
