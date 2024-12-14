@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   company-service:
     build:
@@ -8,7 +6,7 @@ services:
     ports:
       - "3001:2929"
     environment:
-      MONGO_URI: mongodb://mongo:27017/attendify_company
+      MONGO_URI: mongodb://localhost:27017/attendify
       JWT_SECRET: jeetxmurli
       PORT: 3001
       RABBITMQ_URI: amqp://rabbitmq
@@ -29,7 +27,7 @@ services:
       - rabbitmq
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:management
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -40,11 +38,4 @@ services:
       - "6379:6379"
 
   mongo:
-    image: mongo:6
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-
-volumes:
-  mongo-data:
+      image: mongo

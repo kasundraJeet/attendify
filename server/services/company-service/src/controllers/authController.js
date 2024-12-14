@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const Company = require('../models/Company');
+const Company = require('../models/company');
 const amqp = require('amqplib');
 const { errorLog, successLog } = require('../../utils/logger');
 const { rabbit_url } = require('../../configs');
