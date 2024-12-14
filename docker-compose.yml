@@ -1,20 +1,30 @@
-version: "3"
+version: "3.9"
+
 services:
   company-service:
     build:
-      context: .
-      dockerfile: ./server/services/company-service/Dockerfile
+      context: ./server/services/company-service
+      dockerfile: Dockerfile
     ports:
       - "3001:2929"
+    environment:
+      MONGO_URI: mongodb://mongo:27017/attendify_company
+      JWT_SECRET: jeetxmurli
+      PORT: 3001
+      RABBITMQ_URI: amqp://rabbitmq
     depends_on:
       - rabbitmq
       - redis
+      - mongo
+
   email-service:
     build:
-      context: .
-      dockerfile: ./server/services/email-service/Dockerfile
+      context: ./server/services/email-service
+      dockerfile: Dockerfile
     ports:
-      - "3001:2929"
+      - "3002:2929"
+    environment:
+      PORT: 3001
     depends_on:
       - rabbitmq
 
@@ -28,3 +38,13 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

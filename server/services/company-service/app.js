@@ -5,6 +5,7 @@ const cors = require('cors');
 const { port } = require('./configs');
 const { authRouter } = require('./src/routers');
 
+console.log("hii")
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));

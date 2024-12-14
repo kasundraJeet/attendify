@@ -1,18 +1,12 @@
-FROM node:22
+FROM node:22.9
 
-WORKDIR /app
+WORKDIR /
 
 COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm i
 
 COPY . .
-
-ENV MONGO_URI=mongodb://localhost:27017/attendify_company
-
-ENV JWT_SECRET=jeetxmurli
-
-ENV RABBITMQ_URI=amqp://localhost
 
 EXPOSE 2929
 

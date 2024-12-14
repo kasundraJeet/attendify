@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "dev": "npm run start --turbo"
+    "dev": "node app.js",
+    "start": "npm run start"
   },
   "keywords": [],
   "author": "jeet kasundra",
@@ -16,8 +16,5 @@
     "nodemailer": "^6.9.16",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.7"
   }
 }
