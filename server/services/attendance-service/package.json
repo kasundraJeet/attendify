@@ -1,0 +1,16 @@
+{
+  "name": "attendance-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "dev": "npm run start --turbo"
+  },
+  "keywords": [],
+  "author": "jeet kasundra",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}

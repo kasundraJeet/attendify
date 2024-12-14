@@ -1,0 +1,30 @@
+version: "3"
+services:
+  company-service:
+    build:
+      context: .
+      dockerfile: ./server/services/company-service/Dockerfile
+    ports:
+      - "3001:2929"
+    depends_on:
+      - rabbitmq
+      - redis
+  email-service:
+    build:
+      context: .
+      dockerfile: ./server/services/email-service/Dockerfile
+    ports:
+      - "3001:2929"
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
