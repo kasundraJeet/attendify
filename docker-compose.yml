@@ -4,25 +4,25 @@ services:
       context: ./server/services/company-service
       dockerfile: Dockerfile
     ports:
-      - "3001:2929"
+      - "3001:3001"
     environment:
-      MONGO_URI: mongodb://localhost:27017/attendify
+      MONGO_URI: mongodb://mongodb:27017/attendify
       JWT_SECRET: jeetxmurli
       PORT: 3001
       RABBITMQ_URI: amqp://rabbitmq
     depends_on:
       - rabbitmq
       - redis
-      - mongo
+      - mongodb
 
   email-service:
     build:
       context: ./server/services/email-service
       dockerfile: Dockerfile
     ports:
-      - "3002:2929"
+      - "3002:3002"
     environment:
-      PORT: 3001
+      PORT: 3002
     depends_on:
       - rabbitmq
 
@@ -37,5 +37,12 @@ services:
     ports:
       - "6379:6379"
 
-  mongo:
-      image: mongo
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodbdata:/data/db
+
+volumes:
+  mongodbdata:
