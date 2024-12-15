@@ -37,8 +37,9 @@ const countrieList = ref([])
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
-    fname: z.string().min(1, { message: "First name is required" }),
-    lname: z.string().min(1, { message: "Last name is required" })
+    cName: z.string().min(1, { message: "First name is required" }),
+    teamSize: z.string(),
+    country: z.string(),
 }));
 
 
@@ -59,15 +60,17 @@ const fetchCountries = async () => {
     }
 }
 
-
 const onSubmit = handleSubmit(async (values) => {
     isLoading.value = true
     const form_data = new FormData();
+    form_data.append("name", values.cName);
     form_data.append("email", values.email);
+    form_data.append("employees", values.teamSize);
+    form_data.append("country", values.country);
     form_data.append("password", values.password);
 
     try {
-        const response = await ApiWrapper("auth/sign-in", form_data);
+        const response = await ApiWrapper(`${import.meta.env.VITE_API_AUTH_URL}/auth/signup`, form_data);
 
         if (response.success == 1) {
             router.push({ name: "home" })
@@ -75,6 +78,7 @@ const onSubmit = handleSubmit(async (values) => {
             toast.success(response.message)
         }
         else {
+            toast.error(response.message)
             isLoading.value = false
         }
 
@@ -100,7 +104,7 @@ const onSubmit = handleSubmit(async (values) => {
                 <form @submit.prevent="onSubmit">
                     <div class="grid gap-8">
                         <div class="w-full space-y-4">
-                            <FormField v-slot="{ componentField }" name="fname" class="grid gap-1"
+                            <FormField v-slot="{ componentField }" name="cName" class="grid gap-1"
                                 :validate-on-blur="!isFieldDirty">
                                 <FormItem>
                                     <FormLabel>Company Name</FormLabel>
