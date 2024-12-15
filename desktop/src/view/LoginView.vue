@@ -18,10 +18,12 @@ import { Icon } from '@iconify/vue';
 import { toast } from 'vue-sonner';
 import { ApiWrapper } from '@/utils/apiWrapper';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores';
 
 
 const isLoading = ref(false)
 const router = useRouter()
+const authStore = useAuthStore()
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
     password: z.string().min(6, { message: "Password must be at least 6 characters" }),
@@ -38,20 +40,21 @@ const onSubmit = handleSubmit(async (values) => {
     form_data.append("password", values.password);
 
     try {
-        const response = await ApiWrapper("auth/sign-in", form_data);
+        const response = await ApiWrapper(`${import.meta.env.VITE_API_COMPANY_URL}/auth/login`, form_data);
 
         if (response.success == 1) {
-            router.push({ name: "home" })
-            isLoading.value = false
+            authStore.setSessionToken(response.data)
             toast.success(response.message)
+            router.push({ name: "home" })
         }
         else {
-            isLoading.value = false
+            toast.error(response.message)
         }
 
     } catch (e) {
-        isLoading.value = false
         console.error(e);
+    } finally {
+        isLoading.value = false
     }
 })
 </script>

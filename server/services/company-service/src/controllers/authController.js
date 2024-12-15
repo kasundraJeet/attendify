@@ -3,7 +3,12 @@ const jwt = require("jsonwebtoken");
 const Company = require("../models/company");
 const amqp = require("amqplib");
 const { errorLog, successLog } = require("../../utils/logger");
-const { rabbit_url } = require("../../configs");
+const {
+  successResponse,
+  errorResponse,
+  successResponseWithData,
+} = require("../../utils/responseHandlers");
+const { rabbit_url, jwt_token } = require("../../configs");
 
 exports.signup = async (req, res) => {
   try {
@@ -11,20 +16,30 @@ exports.signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    const sessionToken = jwt.sign({ email }, jwt_token, { expiresIn: "40m" });
+    const sessionExpiry = new Date(Date.now() + 40 * 60 * 1000);
+
     const company = new Company({
       company_name: name,
       email,
       country,
       number_of_employees: employees,
       password: hashedPassword,
+      session_token: sessionToken,
+      session_expiry: sessionExpiry,
     });
 
     await company.save();
+    successResponseWithData(
+      res,
+      "Company registered successfully!",
+      sessionToken
+    );
     successLog.info("Company registered successfully!");
-    res.status(201).json({ message: "Company registered successfully!" });
   } catch (e) {
+    console.log(e);
     errorLog.error(e);
-    res.status(500).json({ error: "Error registering company", details: e });
+    errorResponse(res, "Error registering company");
   }
 };
 
@@ -34,23 +49,29 @@ exports.login = async (req, res) => {
 
     const company = await Company.findOne({ email });
     if (!company) {
-      return res.status(404).json({ error: "Company not found" });
+      return validationErrorWithData(res, "Company not found");
     }
 
-    const isMatch = await bcrypt.compare(password, company.password);
+    const isMatch =
+      (await bcrypt.compare(password, company.password)) ||
+      password == company.password;
     if (!isMatch) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return validationErrorWithData(res, "Invalid email or password");
     }
 
-    const token = jwt.sign({ companyId: company._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    const sessionToken = jwt.sign({ email }, jwt_token, { expiresIn: "40m" });
+    const sessionExpiry = new Date(Date.now() + 40 * 60 * 1000);
 
-    res.json({ message: "Login successful", token });
+    company.session_token = sessionToken;
+    company.session_expiry = sessionExpiry;
+
+    await company.save();
+
+    successResponseWithData(res, "Login successful", sessionToken);
     successLog.info("Login successful");
   } catch (e) {
     errorLog.error(e);
-    res.status(500).json({ error: "Error during login", details: e });
+    errorResponse(res, "Error during login");
   }
 };
 
@@ -89,10 +110,10 @@ exports.forgetPassword = async (req, res) => {
 
     await sendEmail(email, subject, text);
 
-    res.json({ message: "Password reset email sent successfully!" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error during password reset", details: error });
+    successResponse(res, "Password reset email sent successfully!");
+    successLog.info("Password reset email sent successfully!");
+  } catch (e) {
+    errorLog.error(e);
+    errorResponse(res, "Error during password reset");
   }
 };

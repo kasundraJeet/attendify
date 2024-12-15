@@ -1,0 +1,11 @@
+docker ps
+
+docker exec -it mongo:latest  mongosh
+
+ show dbs
+
+ use attendify
+
+ show collections
+
+ db.companies.find()

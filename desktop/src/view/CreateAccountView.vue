@@ -28,11 +28,13 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { useRouter } from 'vue-router';
+import {useAuthStore} from '@/stores'
 
 
 const isLoading = ref(false)
 const router = useRouter()
 const countrieList = ref([])
+const authStore = useAuthStore()
 
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
@@ -70,21 +72,21 @@ const onSubmit = handleSubmit(async (values) => {
     form_data.append("password", values.password);
 
     try {
-        const response = await ApiWrapper(`${import.meta.env.VITE_API_AUTH_URL}/auth/signup`, form_data);
+        const response = await ApiWrapper(`${import.meta.env.VITE_API_COMPANY_URL}/auth/signup`, form_data);
 
         if (response.success == 1) {
+            authStore.setSessionToken(response.data)
             router.push({ name: "home" })
-            isLoading.value = false
             toast.success(response.message)
         }
         else {
             toast.error(response.message)
-            isLoading.value = false
         }
 
     } catch (e) {
-        isLoading.value = false
         console.error(e);
+    } finally {
+        isLoading.value = false
     }
 })
 </script>
