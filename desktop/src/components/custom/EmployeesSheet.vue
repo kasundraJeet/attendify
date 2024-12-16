@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,7 +18,9 @@ import {
     SheetHeader,
     SheetTitle,
 } from '@/components/ui/sheet'
-import { toTypedSchema } from '@vee-validate/zod'
+import { toTypedSchema } from '@vee-validate/zod';
+import { Icon } from '@iconify/vue';
+import { ApiWrapper } from '@/utils/apiWrapper';
 import { useForm } from 'vee-validate'
 import * as z from 'zod'
 
@@ -36,13 +39,39 @@ const { isFieldDirty, handleSubmit } = useForm({
     validationSchema: formSchema,
 })
 
-const onSubmit = handleSubmit((values) => {
-    console.log(values)
+const isLoading = ref(false)
+
+const props = defineProps({
+    open:Boolean
+})
+
+
+const onSubmit = handleSubmit(async (values) => {
+    isLoading.value = true
+    const form_data = new FormData();
+    form_data.append("email", values.email);
+    form_data.append("password", values.password);
+
+    try {
+        const response = await ApiWrapper(`${import.meta.env.VITE_API_COMPANY_URL}/auth/login`, form_data);
+
+        if (response.success == 1) {
+            toast.success(response.message)
+        }
+        else {
+            toast.error(response.message)
+        }
+
+    } catch (e) {
+        console.error(e);
+    } finally {
+        isLoading.value = false
+    }
 })
 </script>
 
 <template>
-    <Sheet :open="true">
+    <Sheet :open="open">
         <SheetContent>
             <SheetHeader>
                 <SheetTitle>Employee Manage</SheetTitle>
@@ -103,7 +132,8 @@ const onSubmit = handleSubmit((values) => {
                     </FormField>
                 </div>
                 <SheetFooter>
-                    <Button type="submit">
+                    <Button type="submit" :disabled="isLoading">
+                        <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
                         Save changes
                     </Button>
                 </SheetFooter>

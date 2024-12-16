@@ -5,6 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Icon } from '@iconify/vue';
 import EmployeesCard from '@/components/custom/EmployeeCard.vue';
 import EmployeesSheet from '@/components/custom/EmployeesSheet.vue';
+import { ref } from 'vue';
+
+const sheet = ref(false)
 </script>
 
 <template>
@@ -20,7 +23,7 @@ import EmployeesSheet from '@/components/custom/EmployeesSheet.vue';
                         <Icon icon="solar:import-broken" />
                         Import Employee Data
                     </Button>
-                    <Button variant="default">
+                    <Button variant="default" @click="sheet = !sheet">
                         <Icon icon="line-md:plus" />
                         Add Employee
                     </Button>
@@ -44,6 +47,6 @@ import EmployeesSheet from '@/components/custom/EmployeesSheet.vue';
                 <EmployeesCard />
             </ul>
         </div>
-        <EmployeesSheet />
+        <EmployeesSheet :open="sheet" />
     </LayoutWrapper>
 </template>

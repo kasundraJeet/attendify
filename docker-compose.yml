@@ -30,14 +30,24 @@ services:
       - "3002:3002"
     environment:
       PORT: 3002
+      RABBITMQ_URI: amqp://rabbitmq
+      EMAIL_USER: dorothea.grady99@ethereal.email
+      EMAIL_PASS: REt4NxVNBNbbap9jSR
     depends_on:
       - rabbitmq
+    restart: always
 
   rabbitmq:
     image: rabbitmq:management
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+     test: ["CMD", "rabbitmqctl", "ping"]
+     interval: 10s
+     timeout: 10s
+     retries: 5
+
 
   redis:
     image: redis:7

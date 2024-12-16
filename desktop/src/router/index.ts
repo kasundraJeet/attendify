@@ -34,22 +34,22 @@ const router = createRouter({
   routes,
 });
 
-// router.beforeEach(async (to:any) => {
-//   const authStore = useAuthStore()
+router.beforeEach(async (to:any) => {
+  const authStore = useAuthStore()
 
-//   const publicPages = [
-//     '/login',
-//     '/create-account',
-//     '/forget-password'
-//   ]
-//   const authPage = !publicPages.includes(to.path)
-//   if (authPage && !authStore.sessionToken) {
-//     return '/login'
-//   }
-//   if (authStore.sessionToken && !authPage) {
-//     return '/'
-//   }
-// })
+  const publicPages = [
+    '/login',
+    '/create-account',
+    '/forget-password'
+  ]
+  const authPage = !publicPages.includes(to.path)
+  if (authPage && !authStore.sessionToken) {
+    return '/login'
+  }
+  if (authStore.sessionToken && !authPage) {
+    return '/'
+  }
+})
 
 
 export default router;
