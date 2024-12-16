@@ -1,30 +1,30 @@
-const amqp = require('amqplib');
-const nodemailer = require('nodemailer');
-const { rabbit_url, node_email, node_pass } = require('./configs');
+const amqp = require("amqplib");
+const nodemailer = require("nodemailer");
+const { rabbit_url, node_email, node_pass } = require("./configs");
 
-console.log("email service start")
+console.log("email service start");
 
 const sendEmail = async (email, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: 'Gmail',
+      service: "Gmail",
       auth: {
         user: node_email,
-        pass: node_pass
-      }
+        pass: node_pass,
+      },
     });
 
     const mailOptions = {
       from: node_email,
       to: email,
       subject,
-      text
+      text,
     };
 
     await transporter.sendMail(mailOptions);
     console.log(`Email sent to ${email}`);
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error("Error sending email:", error);
   }
 };
 

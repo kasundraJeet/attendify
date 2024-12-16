@@ -102,7 +102,7 @@ exports.forgetPassword = async (req, res) => {
 
     const company = await Company.findOne({ email });
     if (!company) {
-      return res.status(404).json({ error: "Company not found" });
+      return validationErrorWithData(res, "Company not found");
     }
 
     const subject = "Password Reset";

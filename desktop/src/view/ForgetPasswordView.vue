@@ -17,16 +17,12 @@ import * as z from 'zod';
 import { Icon } from '@iconify/vue';
 import { toast } from 'vue-sonner';
 import { ApiWrapper } from '@/utils/apiWrapper';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores';
-
 
 const isLoading = ref(false)
-const router = useRouter()
-const authStore = useAuthStore()
+const isVerify = ref(false)
+
 const formSchema = toTypedSchema(z.object({
     email: z.string().email(),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
 }));
 
 const { isFieldDirty, handleSubmit } = useForm({
@@ -37,22 +33,21 @@ const onSubmit = handleSubmit(async (values) => {
     isLoading.value = true
     const form_data = new FormData();
     form_data.append("email", values.email);
-    form_data.append("password", values.password);
 
     try {
-        const response = await ApiWrapper(`${import.meta.env.VITE_API_COMPANY_URL}/auth/login`, form_data);
+        const response = await ApiWrapper(`${import.meta.env.VITE_API_COMPANY_URL}/auth/forget-password`, form_data);
 
         if (response.success == 1) {
-            authStore.setSessionToken(response.data)
-            toast.success(response.message)
-            router.push({ name: "home" })
+            isVerify.value = true
         }
         else {
+            isVerify.value = false
             toast.error(response.message)
         }
 
     } catch (e) {
         console.error(e);
+        isVerify.value = false
     } finally {
         isLoading.value = false
     }
@@ -72,7 +67,7 @@ const onSubmit = handleSubmit(async (values) => {
                     </p>
                 </div>
                 <div class="space-y-6">
-                    <form @submit.prevent="onSubmit">
+                    <form v-if="!isVerify" @submit.prevent="onSubmit">
                         <div class="grid gap-4">
                             <div class="w-full space-y-2">
                                 <FormField v-slot="{ componentField }" name="email" class="grid gap-1"
@@ -92,54 +87,18 @@ const onSubmit = handleSubmit(async (values) => {
                                         <FormMessage />
                                     </FormItem>
                                 </FormField>
-                                <FormField v-slot="{ componentField }" name="password" class="grid gap-1"
-                                    :validate-on-blur="!isFieldDirty">
-                                    <FormItem>
-                                        <FormLabel class="sr-only" for="password"> Password</FormLabel>
-                                        <FormControl>
-                                            <div class="grid gap-1">
-                                                <Label class="sr-only" for="password">
-                                                    Password
-                                                </Label>
-                                                <Input id="password" placeholder="Password" type="password"
-                                                    auto-capitalize="none" auto-complete="password" auto-correct="off"
-                                                    :disabled="isLoading" v-bind="componentField" />
-                                                <FormMessage />
-                                                <RouterLink to="/forget-password"
-                                                    class="underline underline-offset-4 hover:text-primary text-sm text-muted-foreground text-end">
-                                                    Forget Password?
-                                                </RouterLink>
-                                            </div>
-                                        </FormControl>
-                                    </FormItem>
-                                </FormField>
                             </div>
                             <Button :disabled="isLoading">
                                 <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
-                                Login
+                                Send Email
                             </Button>
                         </div>
                     </form>
-                    <Separator label="Or continue with" />
-                    <div class="space-y-2">
-                        <div class="grid grid-cols-2 gap-2">
-                            <Button variant="outline" type="button" class="w-full" :disabled="isLoading">
-                                <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
-                                <Icon icon="mdi:google" v-else class="!h-5 !w-5" />
-                                Goggle
-                            </Button>
-                            <Button variant="outline" type="button" class="w-full" :disabled="isLoading">
-                                <Icon icon="ri:loader-4-line" v-if="isLoading" class="h-4 w-4 animate-spin" />
-                                <Icon icon="mdi:apple" v-else class="!h-5 !w-5" />
-                                Apple ID
-                            </Button>
-                        </div>
-                        <Button variant="outline" type="button" class="w-full" :disabled="isLoading" as-child>
-                            <RouterLink to="/create-account" class="flex items-center">
-                                <Icon icon="ri:loader-4-line" v-if="isLoading" class="!h-5 !w-5 animate-spin mr-2" />
-                                <Icon icon="line-md:plus" v-else class="!h-5 !w-5 mr-2" />
-                                Create Account
-                            </RouterLink>
+                    <div class="space-y-2.5 py-8" v-else>
+                        <p class="text-xl font-semibold tracking-tight text-center">Password Send successfuly in email.
+                        </p>
+                        <Button class="w-full" as-child>
+                            <RouterLink to="/login">Go Back Login</RouterLink>
                         </Button>
                     </div>
                 </div>

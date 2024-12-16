@@ -13,9 +13,19 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/view/LoginView.vue'),
   },
   {
+    path: '/forget-password',
+    name: 'forgetPassword',
+    component: () => import('@/view/ForgetPasswordView.vue'),
+  },
+  {
     path: '/create-account',
     name: 'createAccount',
     component: () => import('@/view/CreateAccountView.vue'),
+  },
+  {
+    path: '/employees',
+    name: 'employees',
+    component: () => import('@/view/EmployeesView.vue'),
   },
 ];
 
@@ -24,21 +34,22 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach(async (to:any) => {
-  const authStore = useAuthStore()
+// router.beforeEach(async (to:any) => {
+//   const authStore = useAuthStore()
 
-  const publicPages = [
-    '/login',
-    '/create-account'
-  ]
-  const authPage = !publicPages.includes(to.path)
-  if (authPage && !authStore.sessionToken) {
-    return '/login'
-  }
-  if (authStore.sessionToken && !authPage) {
-    return '/'
-  }
-})
+//   const publicPages = [
+//     '/login',
+//     '/create-account',
+//     '/forget-password'
+//   ]
+//   const authPage = !publicPages.includes(to.path)
+//   if (authPage && !authStore.sessionToken) {
+//     return '/login'
+//   }
+//   if (authStore.sessionToken && !authPage) {
+//     return '/'
+//   }
+// })
 
 
 export default router;

@@ -18,7 +18,7 @@ const navLinks = ref([
         id: 2,
         icon: 'mynaui:users-group',
         link_name: 'Employees',
-        link_path: '/login',
+        link_path: '/employees',
         link_avtive: ['/']
     },
     {
