@@ -1,16 +1,19 @@
 {
   "name": "employee-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "Employee service using Fastify, MySQL, and Sequelize",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon app.js",
-    "dev": "npm run start --turbo"
+    "start": "node app.js",
+    "dev": "node app.js"
   },
-  "keywords": [],
-  "author": "jeet kasundra",
-  "license": "ISC",
-  "devDependencies": {
-    "nodemon": "^3.1.7"
-  }
+  "dependencies": {
+    "dotenv": "^16.x.x",
+    "fastify": "^4.x.x",
+    "mysql2": "^3.x.x",
+    "sequelize": "^6.x.x",
+    "winston": "^3.17.0"
+  },
+  "author": "",
+  "license": "ISC"
 }

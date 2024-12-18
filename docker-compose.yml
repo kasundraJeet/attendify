@@ -42,11 +42,6 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    healthcheck:
-     test: ["CMD", "rabbitmqctl", "ping"]
-     interval: 10s
-     timeout: 10s
-     retries: 5
 
 
   redis:

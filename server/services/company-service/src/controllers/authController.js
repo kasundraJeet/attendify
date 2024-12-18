@@ -7,6 +7,7 @@ const {
   successResponse,
   errorResponse,
   successResponseWithData,
+  validationErrorWithData,
 } = require("../../utils/responseHandlers");
 const { rabbit_url, jwt_token } = require("../../configs");
 
@@ -91,8 +92,8 @@ const sendEmail = async (email, subject, text) => {
     console.log("Email message sent to queue:", emailData);
     await channel.close();
     await connection.close();
-  } catch (error) {
-    console.error("Error sending email message:", error);
+  } catch (e) {
+    console.error("Error sending email message:", e);
   }
 };
 
