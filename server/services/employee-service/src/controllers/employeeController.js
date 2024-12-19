@@ -1,86 +1,179 @@
-// /src/controllers/employeeController.js
-const Employee = require('../models/employee');
-const { successResponse, errorResponse } = require('../../utils/responseHandlers');
-const logger = require('../../utils/logger');
+const { Op } = require("sequelize");
+const Employee = require("../models/employee");
+const bcrypt = require("bcrypt");
 
-// Create a new employee
-const createEmployee = async (request, reply) => {
+exports.employeeList = async (req, res) => {
   try {
-    const employeeData = request.body;
-    const employee = await Employee.create(employeeData);
-    reply.send(successResponse(employee, 'Employee created successfully'));
+    const { company_id } = req.body;
+    if (!company_id) {
+      return res.status(400).json({ message: "company_id is required." });
+    }
+
+    const employees = await Employee.findAll({
+      where: {
+        company_id,
+        is_delete: "0",
+      },
+    });
+
+    res.status(200).json(employees);
   } catch (error) {
-    logger.error(`Create Employee Error: ${error.message}`);
-    reply.status(500).send(errorResponse('Failed to create employee'));
+    res.status(500).json({ message: "Error fetching employees.", error });
   }
 };
 
-// Get all employees
-const getAllEmployees = async (request, reply) => {
+exports.employeeCreateOrEdit = async (req, res) => {
   try {
-    const employees = await Employee.findAll();
-    reply.send(successResponse(employees, 'Employees retrieved successfully'));
+    const {
+      employee_id,
+      first_name,
+      last_name,
+      email,
+      bod,
+      phone_number,
+      company_id,
+      position,
+    } = req.body;
+
+    if (
+      !first_name ||
+      !last_name ||
+      !email ||
+      !bod ||
+      !company_id ||
+      !position
+    ) {
+      return res.status(400).json({ message: "Missing required fields." });
+    }
+
+    if (employee_id) {
+      const updated = await Employee.update(
+        { first_name, last_name, email, bod, phone_number, position },
+        { where: { employee_id } }
+      );
+      return res
+        .status(200)
+        .json({ message: "Employee updated successfully.", updated });
+    } else {
+      const newEmployee = await Employee.create({
+        first_name,
+        last_name,
+        email,
+        bod,
+        phone_number,
+        company_id,
+        position,
+        password: "default",
+      });
+      res
+        .status(201)
+        .json({ message: "Employee created successfully.", newEmployee });
+    }
   } catch (error) {
-    logger.error(`Get All Employees Error: ${error.message}`);
-    reply.status(500).send(errorResponse('Failed to retrieve employees'));
+    res.status(500).json({ message: "Error processing employee data.", error });
   }
 };
 
-// Get a single employee by ID
-const getEmployeeById = async (request, reply) => {
+exports.employeePasswordCreate = async (req, res) => {
   try {
-    const { id } = request.params;
-    const employee = await Employee.findByPk(id);
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ message: "email and password are required." });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const updated = await Employee.update(
+      { password: hashedPassword },
+      { where: { email } }
+    );
+
+    if (updated[0] === 0) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    res.status(200).json({ message: "Password updated successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating password.", error });
+  }
+};
+
+exports.employeeDelete = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "id is required." });
+    }
+
+    const updated = await Employee.update(
+      { is_delete: "1" },
+      { where: { employee_id: id } }
+    );
+
+    if (updated[0] === 0) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    res.status(200).json({ message: "Employee deleted successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting employee.", error });
+  }
+};
+
+exports.employeeDetail = async (req, res) => {
+  try {
+    const { id } = req.body;
+
+    if (!id) {
+      return res.status(400).json({ message: "id is required." });
+    }
+
+    const employee = await Employee.findOne({
+      where: { employee_id: id, is_delete: "0" },
+    });
+
     if (!employee) {
-      return reply.status(404).send(errorResponse('Employee not found', 404));
+      return res.status(404).json({ message: "Employee not found." });
     }
-    reply.send(successResponse(employee, 'Employee retrieved successfully'));
+
+    res.status(200).json(employee);
   } catch (error) {
-    logger.error(`Get Employee By ID Error: ${error.message}`);
-    reply.status(500).send(errorResponse('Failed to retrieve employee'));
+    res
+      .status(500)
+      .json({ message: "Error fetching employee details.", error });
   }
 };
 
-// Update an employee
-const updateEmployee = async (request, reply) => {
+exports.employeeLogin = async (req, res) => {
   try {
-    const { id } = request.params;
-    const updateData = request.body;
-    const [updatedRowsCount, updatedRows] = await Employee.update(updateData, {
-      where: { employee_id: id },
-      returning: true,
-    });
-    if (updatedRowsCount === 0) {
-      return reply.status(404).send(errorResponse('Employee not found', 404));
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: "email is required." });
     }
-    reply.send(successResponse(updatedRows[0], 'Employee updated successfully'));
+
+    const employee = await Employee.findOne({
+      where: { email, is_delete: "0" },
+    });
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    res.status(200).json({ message: "Login successful.", employee });
   } catch (error) {
-    logger.error(`Update Employee Error: ${error.message}`);
-    reply.status(500).send(errorResponse('Failed to update employee'));
+    res.status(500).json({ message: "Error during login.", error });
   }
 };
 
-// Delete an employee
-const deleteEmployee = async (request, reply) => {
+exports.employeeLogout = async (req, res) => {
   try {
-    const { id } = request.params;
-    const deletedRowsCount = await Employee.destroy({
-      where: { employee_id: id },
-    });
-    if (deletedRowsCount === 0) {
-      return reply.status(404).send(errorResponse('Employee not found', 404));
-    }
-    reply.send(successResponse(null, 'Employee deleted successfully'));
+    res.status(200).json({ message: "Logout successful." });
   } catch (error) {
-    logger.error(`Delete Employee Error: ${error.message}`);
-    reply.status(500).send(errorResponse('Failed to delete employee'));
+    res.status(500).json({ message: "Error during logout.", error });
   }
-};
-
-module.exports = {
-  createEmployee,
-  getAllEmployees,
-  getEmployeeById,
-  updateEmployee,
-  deleteEmployee,
 };

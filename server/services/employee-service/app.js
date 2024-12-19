@@ -1,36 +1,36 @@
-// app.js
-const fastify = require("fastify")({ logger: false }); // We'll use our custom logger
-const dotenv = require("dotenv");
+const express = require("express");
 const { connectDB } = require("./configs/database");
-const employeeRoutes = require("./src/routers/employeeRouter");
-const logger = require("./utils/logger");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const { port } = require("./configs");
+const multer = require("multer");
+const { employeeRouter } = require("./src/routers");
+const { notFoundResponse } = require("./utils/responseHandlers");
 
-// Load environment variables
-dotenv.config();
+const app = express();
 
-// Register routes
-fastify.register(employeeRoutes);
+const upload = multer();
+app.use(upload.none());
 
-// Global Error Handler
-fastify.setErrorHandler(function (error, request, reply) {
-  logger.error(`Unhandled Error: ${error.message}`);
-  reply.status(500).send({
-    status: "error",
-    message: "Internal Server Error",
-  });
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.use(cors());
+
+connectDB();
+
+app.use("/employee", employeeRouter);
+
+app.get("/", (req, res) => {
+  res.send("Server is running");
 });
 
-// Start the server
-const start = async () => {
-  try {
-    await connectDB();
-    const PORT = process.env.PORT || 3000;
-    await fastify.listen(PORT, "0.0.0.0");
-    logger.info(`Server is running on port ${PORT}`);
-  } catch (err) {
-    logger.error(`Server Start Error: ${err.message}`);
-    process.exit(1);
-  }
-};
+app.use((req, res, next) => {
+  notFoundResponse(res, "Route not found");
+});
 
-start();
+const PORT = port || 3002;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

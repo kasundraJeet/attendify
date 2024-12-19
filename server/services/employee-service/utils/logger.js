@@ -1,20 +1,35 @@
-// /utils/logger.js
-const { createLogger, format, transports } = require('winston');
-const path = require('path');
+const winston = require("winston");
+const { combine, timestamp, printf } = winston.format;
+const DailyRotateFile = require("winston-daily-rotate-file");
 
-const logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-    format.printf(
-      (info) => `${info.timestamp} [${info.level.toUpperCase()}]: ${info.message}`
-    )
-  ),
+const logFormat = printf(({ level, message, timestamp }) => {
+  return `${timestamp} [${level.toUpperCase()}]: ${message}`;
+});
+
+const errorLog = winston.createLogger({
+  format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), logFormat),
   transports: [
-    new transports.Console(),
-    new transports.File({ filename: path.join(__dirname, '../logs/error.log'), level: 'error' }),
-    new transports.File({ filename: path.join(__dirname, '../logs/combined.log') }),
+    new DailyRotateFile({
+      filename: "logs/error-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      level: "error",
+      maxSize: "20m",
+      maxFiles: "14d",
+    }),
   ],
 });
 
-module.exports = logger;
+const successLog = winston.createLogger({
+  format: combine(timestamp({ format: "YYYY-MM-DD HH:mm:ss" }), logFormat),
+  transports: [
+    new DailyRotateFile({
+      filename: "logs/success-%DATE%.log",
+      datePattern: "YYYY-MM-DD",
+      level: "info",
+      maxSize: "20m",
+      maxFiles: "14d",
+    }),
+  ],
+});
+
+module.exports = { errorLog, successLog };
